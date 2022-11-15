@@ -6,6 +6,8 @@ import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 
 export class OsenchiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -32,12 +34,12 @@ export class OsenchiStack extends cdk.Stack {
       message: sfn.TaskInput.fromJsonPathAt('$.*'),
     });
 
-    new sfn.StateMachine(this, 'StateMachine', {
+    const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: publishMessage
     });
 
-    const logBucket = new s3.Bucket(this, 'LogBucket', {
-      bucketName: 'osenchi-logbucket'
+    const logBucket = new s3.Bucket(this, 'OsenchiLogBucket', {
+      bucketName: 'osenchi-logbucket-123'
     });
 
     const trail = new cloudtrail.Trail(this, 'Trail', {
@@ -52,5 +54,23 @@ export class OsenchiStack extends cdk.Stack {
     trail.addS3EventSelector([s3EventSelector], {
       readWriteType: cloudtrail.ReadWriteType.WRITE_ONLY
     });
+
+    // イベントルール(CloudWatch Events)
+    const rule = new events.Rule(this, 'EventRule', {
+      eventPattern: {
+        source: ['aws.s3'],
+        detailType: ['AWS API Call via CloudTrail'],
+        detail: {
+          'eventSource': ['s3.amazonaws.com'],
+          'eventName': ['PutObject'],
+            'requestParameters': {
+                'bucketName': [inputBucket.bucketName]
+            }
+        }
+      }
+    });
+    // イベントターゲットとしてステートマシンを指定
+    const tartget = new targets.SfnStateMachine(stateMachine)
+    rule.addTarget(tartget);
   }
 }
