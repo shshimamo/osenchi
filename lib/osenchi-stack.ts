@@ -5,6 +5,7 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import * as cloudtrail from 'aws-cdk-lib/aws-cloudtrail';
 
 export class OsenchiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -33,6 +34,23 @@ export class OsenchiStack extends cdk.Stack {
 
     new sfn.StateMachine(this, 'StateMachine', {
       definition: publishMessage
+    });
+
+    const logBucket = new s3.Bucket(this, 'LogBucket', {
+      bucketName: 'osenchi-logbucket'
+    });
+
+    const trail = new cloudtrail.Trail(this, 'Trail', {
+      bucket: logBucket,
+      isMultiRegionTrail: false
+    });
+
+    const s3EventSelector: cloudtrail.S3EventSelector = {
+      bucket: inputBucket,
+    };
+
+    trail.addS3EventSelector([s3EventSelector], {
+      readWriteType: cloudtrail.ReadWriteType.WRITE_ONLY
     });
   }
 }
