@@ -30,16 +30,6 @@ export class OsenchiStack extends cdk.Stack {
     const email = 'shshimamo@gmail.com';
     emailTopic.addSubscription(new subscriptions.EmailSubscription(email));
 
-    const publishMessage = new tasks.SnsPublish(this, 'SendSuccessMail', {
-      topic: emailTopic,
-      subject: 'Osenchi Success',
-      message: sfn.TaskInput.fromJsonPathAt('$.*'),
-    });
-
-    const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
-      definition: publishMessage
-    });
-
     const logBucket = new s3.Bucket(this, 'OsenchiLogBucket', {
       bucketName: 'osenchi-logbucket-123'
     });
@@ -71,9 +61,6 @@ export class OsenchiStack extends cdk.Stack {
         }
       }
     });
-    // イベントターゲットとしてステートマシンを指定
-    const tartget = new targets.SfnStateMachine(stateMachine)
-    rule.addTarget(tartget);
 
     const detectionFunc = new lambda.Function(this, 'DetectionFunc', {
       functionName: 'osenchi-detect-sentiment',
@@ -107,5 +94,36 @@ export class OsenchiStack extends cdk.Stack {
     detectionFunc.addToRolePolicy(policy);
 
     inputBucket.grantRead(deletionFunc);
+
+    const sentimentTask = new tasks.LambdaInvoke(this, 'DetectSentiment', {
+      lambdaFunction: detectionFunc,
+    });
+    const deleteTask = new tasks.LambdaInvoke(this, 'DeleteObject', {
+      lambdaFunction: deletionFunc,
+    });
+    const successTask = new tasks.SnsPublish(this, 'SendSuccessMail', {
+      topic: emailTopic,
+      message: sfn.TaskInput.fromJsonPathAt('$.*'),
+      subject: 'Osenchi Success',
+    });
+    const errorTask = new tasks.SnsPublish(this, 'SendErrorMail', {
+      topic: emailTopic,
+      message: sfn.TaskInput.fromJsonPathAt('$.*'),
+      subject: 'Osenchi Error',
+    });
+
+    const mainFlow = sentimentTask.next(deleteTask).next(successTask);
+    const parallel = new sfn.Parallel(this, 'Parallel');
+    parallel.branch(mainFlow);
+    parallel.addCatch(errorTask, { resultPath: '$.error' });
+
+    const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
+      definition: parallel,
+      timeout: cdk.Duration.minutes(30),
+    });
+    // イベントターゲットとしてステートマシンを指定
+    const tartget = new targets.SfnStateMachine(stateMachine)
+    rule.addTarget(tartget);
+
   }
 }
