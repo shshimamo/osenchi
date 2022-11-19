@@ -161,7 +161,7 @@ export class CoreStack extends cdk.Stack {
             }),
             handler: 'index.handler',
             runtime: lambda.Runtime.NODEJS_12_X,
-            timeout: cdk.Duration.minutes(5),
+            timeout: cdk.Duration.minutes(10),
             environment: {
                 DEST_BUCKET: this.outputBucket.bucketName,
             },
