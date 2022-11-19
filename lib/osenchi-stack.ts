@@ -16,22 +16,22 @@ export class OsenchiStack extends cdk.Stack {
     super(scope, id, props);
 
     const inputBucket = new s3.Bucket(this, 'OsenchiInputBucket', {
-      bucketName: 'osenchi-inputbuchet'
+      bucketName: 'osenchi-inputbucket--shshimamo'
     });
 
     const outputBucket = new s3.Bucket(this, 'OsenchiOutputBucket', {
-      bucketName: 'osenchi-outputbuchet'
+      bucketName: 'osenchi-outputbucket--shshimamo'
     });
 
     const emailTopic = new sns.Topic(this, 'OsenchiEmailTopic', {
-      topicName: 'osenchi-topic'
+      topicName: 'osenchi-topic--shshimamo'
     });
 
     const email = 'shshimamo@gmail.com';
     emailTopic.addSubscription(new subscriptions.EmailSubscription(email));
 
     const logBucket = new s3.Bucket(this, 'OsenchiLogBucket', {
-      bucketName: 'osenchi-logbucket-123'
+      bucketName: 'osenchi-logbucket--shshimamo'
     });
 
     const trail = new cloudtrail.Trail(this, 'Trail', {
@@ -62,68 +62,68 @@ export class OsenchiStack extends cdk.Stack {
       }
     });
 
-    const detectionFunc = new lambda.Function(this, 'DetectionFunc', {
-      functionName: 'osenchi-detect-sentiment',
-      code: lambda.Code.fromAsset('functions/detect-sentiment', {
-        exclude: ['*.ts'],
-      }),
-      handler: 'index.handler',
-      runtime: lambda.Runtime.NODEJS_16_X,
-      timeout: cdk.Duration.minutes(5),
-      environment: {
-        DEST_BUCKET: outputBucket.bucketName,
-      },
-    });
-
-    const deletionFunc = new lambda.Function(this, 'DeletionFunc', {
-      functionName: 'osenchi-delete-object',
-      code: lambda.Code.fromAsset('functions/delete-object', {
-        exclude: ['*.ts'],
-      }),
-      handler: 'index.handler',
-      runtime: lambda.Runtime.NODEJS_16_X,
-    });
-
-    inputBucket.grantRead(detectionFunc);
-    outputBucket.grantWrite(detectionFunc);
-    const policy = new iam.PolicyStatement({
-      resources: ['*'],
-      actions: ['comprehend:BatchDetectSentiment'],
-    });
-    // ポリシー追加
-    detectionFunc.addToRolePolicy(policy);
-
-    inputBucket.grantRead(deletionFunc);
-
-    const sentimentTask = new tasks.LambdaInvoke(this, 'DetectSentiment', {
-      lambdaFunction: detectionFunc,
-    });
-    const deleteTask = new tasks.LambdaInvoke(this, 'DeleteObject', {
-      lambdaFunction: deletionFunc,
-    });
-    const successTask = new tasks.SnsPublish(this, 'SendSuccessMail', {
-      topic: emailTopic,
-      message: sfn.TaskInput.fromJsonPathAt('$.*'),
-      subject: 'Osenchi Success',
-    });
-    const errorTask = new tasks.SnsPublish(this, 'SendErrorMail', {
-      topic: emailTopic,
-      message: sfn.TaskInput.fromJsonPathAt('$.*'),
-      subject: 'Osenchi Error',
-    });
-
-    const mainFlow = sentimentTask.next(deleteTask).next(successTask);
-    const parallel = new sfn.Parallel(this, 'Parallel');
-    parallel.branch(mainFlow);
-    parallel.addCatch(errorTask, { resultPath: '$.error' });
-
-    const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
-      definition: parallel,
-      timeout: cdk.Duration.minutes(30),
-    });
-    // イベントターゲットとしてステートマシンを指定
-    const tartget = new targets.SfnStateMachine(stateMachine)
-    rule.addTarget(tartget);
+    // const detectionFunc = new lambda.Function(this, 'DetectionFunc', {
+    //   functionName: 'osenchi-detect-sentiment',
+    //   code: lambda.Code.fromAsset('functions/detect-sentiment', {
+    //     exclude: ['*.ts'],
+    //   }),
+    //   handler: 'index.handler',
+    //   runtime: lambda.Runtime.NODEJS_16_X,
+    //   timeout: cdk.Duration.minutes(5),
+    //   environment: {
+    //     DEST_BUCKET: outputBucket.bucketName,
+    //   },
+    // });
+    //
+    // const deletionFunc = new lambda.Function(this, 'DeletionFunc', {
+    //   functionName: 'osenchi-delete-object',
+    //   code: lambda.Code.fromAsset('functions/delete-object', {
+    //     exclude: ['*.ts'],
+    //   }),
+    //   handler: 'index.handler',
+    //   runtime: lambda.Runtime.NODEJS_16_X,
+    // });
+    //
+    // inputBucket.grantRead(detectionFunc);
+    // outputBucket.grantWrite(detectionFunc);
+    // const policy = new iam.PolicyStatement({
+    //   resources: ['*'],
+    //   actions: ['comprehend:BatchDetectSentiment'],
+    // });
+    // // ポリシー追加
+    // detectionFunc.addToRolePolicy(policy);
+    //
+    // inputBucket.grantRead(deletionFunc);
+    //
+    // const sentimentTask = new tasks.LambdaInvoke(this, 'DetectSentiment', {
+    //   lambdaFunction: detectionFunc,
+    // });
+    // const deleteTask = new tasks.LambdaInvoke(this, 'DeleteObject', {
+    //   lambdaFunction: deletionFunc,
+    // });
+    // const successTask = new tasks.SnsPublish(this, 'SendSuccessMail', {
+    //   topic: emailTopic,
+    //   message: sfn.TaskInput.fromJsonPathAt('$.*'),
+    //   subject: 'Osenchi Success',
+    // });
+    // const errorTask = new tasks.SnsPublish(this, 'SendErrorMail', {
+    //   topic: emailTopic,
+    //   message: sfn.TaskInput.fromJsonPathAt('$.*'),
+    //   subject: 'Osenchi Error',
+    // });
+    //
+    // const mainFlow = sentimentTask.next(deleteTask).next(successTask);
+    // const parallel = new sfn.Parallel(this, 'Parallel');
+    // parallel.branch(mainFlow);
+    // parallel.addCatch(errorTask, { resultPath: '$.error' });
+    //
+    // const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
+    //   definition: parallel,
+    //   timeout: cdk.Duration.minutes(30),
+    // });
+    // // イベントターゲットとしてステートマシンを指定
+    // const tartget = new targets.SfnStateMachine(stateMachine)
+    // rule.addTarget(tartget);
 
   }
 }
