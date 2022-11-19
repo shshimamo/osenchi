@@ -218,9 +218,14 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "1ebc9d3ac2033816c4abb63e4afd69d350b4aba8704cc9236b82ea520b74f4b0.zip",
+          "S3Key": "cd68757a640d547bd645f867e4cea8a5ef0d031c2dbf11bd19a7cc33387a037d.zip",
         },
-        "FunctionName": "osenchi-dev-delete-object",
+        "Environment": Object {
+          "Variables": Object {
+            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
+          },
+        },
+        "FunctionName": "osenchi-shshimamo-dev-delete-object",
         "Handler": "index.handler",
         "Role": Object {
           "Fn::GetAtt": Array [
@@ -228,7 +233,7 @@ Object {
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs16.x",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -307,16 +312,17 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "1ebc9d3ac2033816c4abb63e4afd69d350b4aba8704cc9236b82ea520b74f4b0.zip",
+          "S3Key": "a5a6f4129ea5bbbbd2584f4eda545bccd707441f6942fa31750b3f983d225469.zip",
         },
         "Environment": Object {
           "Variables": Object {
+            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
             "DEST_BUCKET": Object {
               "Ref": "OutputBucket7114EB27",
             },
           },
         },
-        "FunctionName": "osenchi-dev-detect-sentiment",
+        "FunctionName": "osenchi-shshimamo-dev-detect-sentiment",
         "Handler": "index.handler",
         "Role": Object {
           "Fn::GetAtt": Array [
@@ -324,7 +330,7 @@ Object {
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs16.x",
         "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
@@ -491,7 +497,7 @@ Object {
     "InputBucket3BF8630A": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
-        "BucketName": "osenchi-dev-input",
+        "BucketName": "osenchi-shshimamo-dev-input",
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
@@ -499,7 +505,7 @@ Object {
     "LogBucketCC3B17E8": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
-        "BucketName": "osenchi-dev-log",
+        "BucketName": "osenchi-shshimamo-dev-log",
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
@@ -563,14 +569,14 @@ Object {
     "OutputBucket7114EB27": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
-        "BucketName": "osenchi-dev-output",
+        "BucketName": "osenchi-shshimamo-dev-output",
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
     },
     "TopicBFC7AF6E": Object {
       "Properties": Object {
-        "TopicName": "osenchi-dev-topic",
+        "TopicName": "osenchi-shshimamo-dev-topic",
       },
       "Type": "AWS::SNS::Topic",
     },
