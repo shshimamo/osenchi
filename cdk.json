@@ -40,11 +40,11 @@
     ],
     "stage": "dev",
     "prod": {
-      "service_name": "osenchi",
+      "service_name": "osenchi-shshimamo",
       "emails": "shshimamo@gmail.com"
     },
     "dev": {
-      "service_name": "osenchi-dev",
+      "service_name": "osenchi-shshimamo-dev",
       "emails": "shshimamo@gmail.com"
     }
   }

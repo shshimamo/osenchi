@@ -10,6 +10,8 @@ import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as path from 'path';
 
 export interface IBucketProps {
     inputName: string;
@@ -154,13 +156,11 @@ export class CoreStack extends cdk.Stack {
      * @memberof CoreStack
      */
     private newDetectSentiment(functionName: string): lambda.Function {
-        const func = new lambda.Function(this, 'DetectionFunc', {
+        const func = new NodejsFunction(this, 'DetectionFunc', {
             functionName: functionName,
-            code: lambda.Code.fromAsset('functions/detect-sentiment', {
-                exclude: ['*.ts'],
-            }),
-            handler: 'index.handler',
-            runtime: lambda.Runtime.NODEJS_12_X,
+            entry: path.join(__dirname, `/../../functions/detect-sentiment/index.ts`),
+            handler: 'handler',
+            runtime: lambda.Runtime.NODEJS_16_X,
             timeout: cdk.Duration.minutes(10),
             environment: {
                 DEST_BUCKET: this.outputBucket.bucketName,
@@ -187,13 +187,11 @@ export class CoreStack extends cdk.Stack {
      * @memberof CoreStack
      */
     private newDeleteObject(functionName: string): lambda.Function {
-        const func = new lambda.Function(this, 'DeletionFunc', {
+        const func = new NodejsFunction(this, 'DeletionFunc', {
             functionName: functionName,
-            code: lambda.Code.fromAsset('functions/delete-object', {
-                exclude: ['*.ts'],
-            }),
-            handler: 'index.handler',
-            runtime: lambda.Runtime.NODEJS_12_X,
+            entry: path.join(__dirname, `/../../functions/delete-object/index.ts`),
+            handler: 'handler',
+            runtime: lambda.Runtime.NODEJS_16_X,
         });
         this.inputBucket.grantDelete(func);
 
