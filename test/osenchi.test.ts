@@ -1,17 +1,20 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as Osenchi from '../lib/osenchi-stack';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from "aws-cdk-lib/assertions";
+import { CoreProps } from '../lib/core/core-props';
+import { CoreStack, ICoreProps } from '../lib/core/core-stack';
+import { Context } from '../lib/common/context';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/osenchi-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new Osenchi.OsenchiStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+beforeAll(() => {
+    Context.setEnvironment();
+});
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
+describe('Osenchi Snapshot tests', () => {
+    test('Snapshot tests', () => {
+        const app = new cdk.App();
+        const props = CoreProps.fromContext(app.node);
+        const stack = new CoreStack(app, 'Osenchi-Core', props);
+        // スタックからテンプレート(JSON)を生成
+        const template = Template.fromStack(stack).toJSON();
+        expect(template).toMatchSnapshot();
+    });
 });

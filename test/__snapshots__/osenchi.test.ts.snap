@@ -1,0 +1,657 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Osenchi Snapshot tests Snapshot tests 1`] = `
+Object {
+  "Parameters": Object {
+    "BootstrapVersion": Object {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": Object {
+    "CoreStateMachineB7B42254": Object {
+      "DependsOn": Array [
+        "CoreStateMachineRoleDefaultPolicyBB1EA2EF",
+        "CoreStateMachineRole7A3F6625",
+      ],
+      "Properties": Object {
+        "DefinitionString": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "{\\"StartAt\\":\\"Parallel\\",\\"States\\":{\\"Parallel\\":{\\"Type\\":\\"Parallel\\",\\"End\\":true,\\"Catch\\":[{\\"ErrorEquals\\":[\\"States.ALL\\"],\\"ResultPath\\":\\"$.error\\",\\"Next\\":\\"SendErrorMail\\"}],\\"Branches\\":[{\\"StartAt\\":\\"DetectSentiment\\",\\"States\\":{\\"DetectSentiment\\":{\\"Next\\":\\"DeleteObject\\",\\"Retry\\":[{\\"ErrorEquals\\":[\\"Lambda.ServiceException\\",\\"Lambda.AWSLambdaException\\",\\"Lambda.SdkClientException\\"],\\"IntervalSeconds\\":2,\\"MaxAttempts\\":6,\\"BackoffRate\\":2}],\\"Type\\":\\"Task\\",\\"Resource\\":\\"arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::lambda:invoke\\",\\"Parameters\\":{\\"FunctionName\\":\\"",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DetectionFunc517A97A1",
+                  "Arn",
+                ],
+              },
+              "\\",\\"Payload.$\\":\\"$\\"}},\\"DeleteObject\\":{\\"Next\\":\\"SendSuccessMail\\",\\"Retry\\":[{\\"ErrorEquals\\":[\\"Lambda.ServiceException\\",\\"Lambda.AWSLambdaException\\",\\"Lambda.SdkClientException\\"],\\"IntervalSeconds\\":2,\\"MaxAttempts\\":6,\\"BackoffRate\\":2}],\\"Type\\":\\"Task\\",\\"Resource\\":\\"arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::lambda:invoke\\",\\"Parameters\\":{\\"FunctionName\\":\\"",
+              Object {
+                "Fn::GetAtt": Array [
+                  "DeletionFunc033546BC",
+                  "Arn",
+                ],
+              },
+              "\\",\\"Payload.$\\":\\"$\\"}},\\"SendSuccessMail\\":{\\"End\\":true,\\"Type\\":\\"Task\\",\\"Resource\\":\\"arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::sns:publish\\",\\"Parameters\\":{\\"TopicArn\\":\\"",
+              Object {
+                "Ref": "TopicBFC7AF6E",
+              },
+              "\\",\\"Message.$\\":\\"$.*\\",\\"Subject\\":\\"Osenchi Success\\"}}}}]},\\"SendErrorMail\\":{\\"Next\\":\\"Fail\\",\\"Type\\":\\"Task\\",\\"Resource\\":\\"arn:",
+              Object {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::sns:publish\\",\\"Parameters\\":{\\"TopicArn\\":\\"",
+              Object {
+                "Ref": "TopicBFC7AF6E",
+              },
+              "\\",\\"Message.$\\":\\"$.*\\",\\"Subject\\":\\"Osenchi Error\\"}},\\"Fail\\":{\\"Type\\":\\"Fail\\"}},\\"TimeoutSeconds\\":1800}",
+            ],
+          ],
+        },
+        "RoleArn": Object {
+          "Fn::GetAtt": Array [
+            "CoreStateMachineRole7A3F6625",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::StepFunctions::StateMachine",
+    },
+    "CoreStateMachineEventsRoleD78C356A": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "events.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CoreStateMachineEventsRoleDefaultPolicy5AC2504D": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "states:StartExecution",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Ref": "CoreStateMachineB7B42254",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CoreStateMachineEventsRoleDefaultPolicy5AC2504D",
+        "Roles": Array [
+          Object {
+            "Ref": "CoreStateMachineEventsRoleD78C356A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CoreStateMachineRole7A3F6625": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "states.",
+                      Object {
+                        "Ref": "AWS::Region",
+                      },
+                      ".amazonaws.com",
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CoreStateMachineRoleDefaultPolicyBB1EA2EF": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Ref": "TopicBFC7AF6E",
+              },
+            },
+            Object {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DeletionFunc033546BC",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DetectionFunc517A97A1",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DeletionFunc033546BC",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "DetectionFunc517A97A1",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CoreStateMachineRoleDefaultPolicyBB1EA2EF",
+        "Roles": Array [
+          Object {
+            "Ref": "CoreStateMachineRole7A3F6625",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DeletionFunc033546BC": Object {
+      "DependsOn": Array [
+        "DeletionFuncServiceRoleDefaultPolicy9F90806E",
+        "DeletionFuncServiceRoleBDC2D65F",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "1ebc9d3ac2033816c4abb63e4afd69d350b4aba8704cc9236b82ea520b74f4b0.zip",
+        },
+        "FunctionName": "osenchi-dev-delete-object",
+        "Handler": "index.handler",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "DeletionFuncServiceRoleBDC2D65F",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DeletionFuncServiceRoleBDC2D65F": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DeletionFuncServiceRoleDefaultPolicy9F90806E": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:DeleteObject*",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "InputBucket3BF8630A",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DeletionFuncServiceRoleDefaultPolicy9F90806E",
+        "Roles": Array [
+          Object {
+            "Ref": "DeletionFuncServiceRoleBDC2D65F",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DetectionFunc517A97A1": Object {
+      "DependsOn": Array [
+        "DetectionFuncServiceRoleDefaultPolicy0AD5E3F4",
+        "DetectionFuncServiceRole05A10551",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "1ebc9d3ac2033816c4abb63e4afd69d350b4aba8704cc9236b82ea520b74f4b0.zip",
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "DEST_BUCKET": Object {
+              "Ref": "OutputBucket7114EB27",
+            },
+          },
+        },
+        "FunctionName": "osenchi-dev-detect-sentiment",
+        "Handler": "index.handler",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "DetectionFuncServiceRole05A10551",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 300,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "DetectionFuncServiceRole05A10551": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DetectionFuncServiceRoleDefaultPolicy0AD5E3F4": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetBucket*",
+                "s3:GetObject*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "InputBucket3BF8630A",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "InputBucket3BF8630A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": Array [
+                "s3:Abort*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "OutputBucket7114EB27",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "OutputBucket7114EB27",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            Object {
+              "Action": "comprehend:BatchDetectSentiment",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DetectionFuncServiceRoleDefaultPolicy0AD5E3F4",
+        "Roles": Array [
+          Object {
+            "Ref": "DetectionFuncServiceRole05A10551",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "EventRule5A491D2C": Object {
+      "Properties": Object {
+        "EventPattern": Object {
+          "detail": Object {
+            "eventName": Array [
+              "PutObject",
+            ],
+            "eventSource": Array [
+              "s3.amazonaws.com",
+            ],
+            "requestParameters": Object {
+              "bucketName": Array [
+                Object {
+                  "Ref": "InputBucket3BF8630A",
+                },
+              ],
+            },
+          },
+          "detail-type": Array [
+            "AWS API Call via CloudTrail",
+          ],
+          "source": Array [
+            "aws.s3",
+          ],
+        },
+        "State": "ENABLED",
+        "Targets": Array [
+          Object {
+            "Arn": Object {
+              "Ref": "CoreStateMachineB7B42254",
+            },
+            "Id": "Target0",
+            "RoleArn": Object {
+              "Fn::GetAtt": Array [
+                "CoreStateMachineEventsRoleD78C356A",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "InputBucket3BF8630A": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "BucketName": "osenchi-dev-input",
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "LogBucketCC3B17E8": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "BucketName": "osenchi-dev-log",
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "LogBucketPolicy900DBE48": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "LogBucketCC3B17E8",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetBucketAcl",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "cloudtrail.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "LogBucketCC3B17E8",
+                  "Arn",
+                ],
+              },
+            },
+            Object {
+              "Action": "s3:PutObject",
+              "Condition": Object {
+                "StringEquals": Object {
+                  "s3:x-amz-acl": "bucket-owner-full-control",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "cloudtrail.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "LogBucketCC3B17E8",
+                        "Arn",
+                      ],
+                    },
+                    "/AWSLogs/",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "OutputBucket7114EB27": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "BucketName": "osenchi-dev-output",
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "TopicBFC7AF6E": Object {
+      "Properties": Object {
+        "TopicName": "osenchi-dev-topic",
+      },
+      "Type": "AWS::SNS::Topic",
+    },
+    "Topicshshimamogmailcom5F773F6A": Object {
+      "Properties": Object {
+        "Endpoint": "shshimamo@gmail.com",
+        "Protocol": "email",
+        "TopicArn": Object {
+          "Ref": "TopicBFC7AF6E",
+        },
+      },
+      "Type": "AWS::SNS::Subscription",
+    },
+    "Trail022F0CF2": Object {
+      "DependsOn": Array [
+        "LogBucketPolicy900DBE48",
+      ],
+      "Properties": Object {
+        "EnableLogFileValidation": true,
+        "EventSelectors": Array [
+          Object {
+            "DataResources": Array [
+              Object {
+                "Type": "AWS::S3::Object",
+                "Values": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
+                            "InputBucket3BF8630A",
+                            "Arn",
+                          ],
+                        },
+                        "/",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "ReadWriteType": "WriteOnly",
+          },
+        ],
+        "IncludeGlobalServiceEvents": true,
+        "IsLogging": true,
+        "IsMultiRegionTrail": false,
+        "S3BucketName": Object {
+          "Ref": "LogBucketCC3B17E8",
+        },
+      },
+      "Type": "AWS::CloudTrail::Trail",
+    },
+  },
+  "Rules": Object {
+    "CheckBootstrapVersion": Object {
+      "Assertions": Array [
+        Object {
+          "Assert": Object {
+            "Fn::Not": Array [
+              Object {
+                "Fn::Contains": Array [
+                  Array [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  Object {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

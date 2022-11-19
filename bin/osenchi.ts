@@ -2,6 +2,11 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { OsenchiStack } from '../lib/osenchi-stack';
+import { Context } from '../lib/common/context';
+
+if (Boolean(process.env.DEBUG)) {
+    Context.setEnvironment();
+}
 
 const app = new cdk.App();
 new OsenchiStack(app, 'OsenchiStack', {

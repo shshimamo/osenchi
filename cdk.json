@@ -37,6 +37,15 @@
     "@aws-cdk/core:target-partitions": [
       "aws",
       "aws-cn"
-    ]
+    ],
+    "stage": "dev",
+    "prod": {
+      "service_name": "osenchi",
+      "emails": "shshimamo@gmail.com"
+    },
+    "dev": {
+      "service_name": "osenchi-dev",
+      "emails": "shshimamo@gmail.com"
+    }
   }
 }
