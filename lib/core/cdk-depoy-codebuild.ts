@@ -7,7 +7,7 @@ export class CdkDeployCodeBuildStack extends cdk.Stack {
         super(scope, id, props);
 
         const buildImage = codebuild.LinuxBuildImage.fromDockerRegistry(
-            "public.ecr.aws/bitnami/node:14.17.6-prod"
+            "public.ecr.aws/bitnami/node:16.18.1"
         )
         const project = new codebuild.Project(this, "OsenchiProject", {
             projectName: "osenchi-cdk-deploy",
