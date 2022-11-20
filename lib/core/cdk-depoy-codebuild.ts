@@ -19,15 +19,8 @@ export class CdkDeployCodeBuildStack extends cdk.Stack {
                 phases: {
                     install: {
                         commands: [
-                            'npm install -g aws-cdk',
                             "npm install",
                         ]
-                    },
-                    pre_build: {
-                       commands: [
-                           'cdk --version',
-                           'cdk diff',
-                       ]
                     },
                     build: {
                         commands: [
