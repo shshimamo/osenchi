@@ -24,7 +24,7 @@ export class CdkDeployCodeBuildStack extends cdk.Stack {
                     },
                     build: {
                         commands: [
-                            'npx cdk deploy --all --require-approval never'
+                            'npx cdk deploy --verbose --all --require-approval never'
                         ]
                     }
                 }
