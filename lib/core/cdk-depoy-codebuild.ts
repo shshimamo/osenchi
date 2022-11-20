@@ -31,6 +31,7 @@ export class CdkDeployCodeBuildStack extends cdk.Stack {
                     },
                     build: {
                         commands: [
+                            'npm test',
                             'npx cdk deploy --verbose --all --require-approval never'
                         ]
                     }
