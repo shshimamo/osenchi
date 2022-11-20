@@ -19,7 +19,7 @@ export class CdkDeployCodeBuildStack extends cdk.Stack {
                 phases: {
                     install: {
                         commands: [
-                            "npm ci"
+                            "npm install"
                         ]
                     },
                     build: {
