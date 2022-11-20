@@ -22,6 +22,12 @@ export class CdkDeployCodeBuildStack extends cdk.Stack {
                             "npm install"
                         ]
                     },
+                    pre_build: {
+                       commands: [
+                           'cdk --version',
+                           'cdk diff',
+                       ]
+                    },
                     build: {
                         commands: [
                             'npx cdk deploy --verbose --all --require-approval never'
